@@ -119,15 +119,13 @@ public enum State {
 }
 
 public class StatusNight {
-	public List<string> choosingUserId;
-	public bool isBited;
-	public bool isFotuneTelled;
-	public bool isGuraded;
+	public string PlayerIdBiteMe;
+	public string PlayerIdFotuneTellMe;
+	public string PlayerIdGuradMe;
 
 	public StatusNight(){
-		choosingUserId = new List<string>();
-		isBited = false;
-		isFotuneTelled = false;
-		isGuraded = false;
+		PlayerIdBiteMe = null;
+		PlayerIdFotuneTellMe = null;
+		PlayerIdGuradMe = null;
 	}
 }

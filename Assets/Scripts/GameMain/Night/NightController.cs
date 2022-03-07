@@ -51,8 +51,6 @@ public class NightController : MonoBehaviourPunCallbacks
 		}
 
 		foreach (Player player in PhotonNetwork.PlayerList) {
-			if (!SettingPropetiesExtentions.GetPlayerIsAlive(player.UserId)) continue;
-
 			GameObject newPlayerVotePanel = Instantiate(choosePanel, Vector3.zero, Quaternion.identity);
 			Text playerName = newPlayerVotePanel.transform.GetChild(0).GetComponent<Text>();
 			playerName.text = player.NickName;
@@ -83,6 +81,11 @@ public class NightController : MonoBehaviourPunCallbacks
 			}
 			else if(myRole.role_name == "knight"){
 				if(player.UserId == PhotonNetwork.LocalPlayer.UserId) chooseButton.interactable = false;
+			}
+
+			if (!SettingPropetiesExtentions.GetPlayerIsAlive(player.UserId)) {
+				playerName.text += "\n<color=red>死亡</color>";
+				chooseButton.interactable = false;
 			}
 
 			newPlayerVotePanel.transform.SetParent(content.transform);
@@ -183,7 +186,7 @@ public class NightController : MonoBehaviourPunCallbacks
 
 		// 役職行動によるステータスフラグをかける
 		Dictionary<string, StatusNight> playerStatusDict = new Dictionary<string, StatusNight>();
-		List<string> bitedPlayersId = new List<string>();
+		List<(string, string)> bitedAndBitePlayersId = new List<(string, string)>();
 		foreach (KeyValuePair<string, string> chooseInfo in finChoosePlayer){
 			string fromUserId = chooseInfo.Key;
 			string toUserId = chooseInfo.Value;
@@ -193,58 +196,56 @@ public class NightController : MonoBehaviourPunCallbacks
 
 			NightAction fromPlayerNightAction = fromPlayer.role.nightAction;
 			if(!playerStatusDict.ContainsKey(toUserId)) playerStatusDict.Add(toUserId, new StatusNight());
-			playerStatusDict[toUserId].choosingUserId.Add(fromUserId);
 
 			if(fromPlayerNightAction == NightAction.suspectWolf) {}
 			else if(fromPlayerNightAction == NightAction.biteToKill) {
 				// 初日は噛めない
-				if(GameInfomation.day != 1) bitedPlayersId.Add(toUserId);
+				if(GameInfomation.day != 1) bitedAndBitePlayersId.Add((toUserId, fromUserId));
 			}
 			else if(fromPlayerNightAction == NightAction.fotuneTelling) {
-				playerStatusDict[toUserId].isFotuneTelled = true;
+				playerStatusDict[toUserId].PlayerIdFotuneTellMe = fromUserId;
 			}
 			else if(fromPlayerNightAction == NightAction.seeMediumRes) {}
 			else if(fromPlayerNightAction == NightAction.guardOtherPeople) {
-				playerStatusDict[toUserId].isGuraded = true;
+				playerStatusDict[toUserId].PlayerIdGuradMe = fromUserId;
 			}
 		}
 
 		// 人狼の噛み先が複数いたら、ランダムに1人選ぶ
-		if(bitedPlayersId.Count > 1){
-			int bitedPlayerIndex = Random.Range(0, bitedPlayersId.Count);
-			string bitedPlayerId = bitedPlayersId[bitedPlayerIndex];
-			playerStatusDict[bitedPlayerId].isBited = true;
-		}else if(bitedPlayersId.Count == 1){
-			string bitedPlayerId = bitedPlayersId[0];
-			playerStatusDict[bitedPlayerId].isBited = true;
+		if(bitedAndBitePlayersId.Count > 1){
+			int bitedPlayerIndex = Random.Range(0, bitedAndBitePlayersId.Count);
+			(string bitedPlayerId, string bitePlayerId) = bitedAndBitePlayersId[bitedPlayerIndex];
+			playerStatusDict[bitedPlayerId].PlayerIdBiteMe = bitePlayerId;
+		}else if(bitedAndBitePlayersId.Count == 1){
+			(string bitedPlayerId, string bitePlayerId) = bitedAndBitePlayersId[0];
+			playerStatusDict[bitedPlayerId].PlayerIdBiteMe = bitePlayerId;
 		}
 
 		// ステータスフラグから死者を求める
-		// !!! TODO !!! 選択元に影響を与える場合の処理ができていない
 		foreach (KeyValuePair<string, StatusNight> playerStatus in playerStatusDict) {
 			string playerId = playerStatus.Key;
 			PlayerInfo playerInfo = GameInfomation.playerInfoDict[playerId];
 			Role playerRole = playerInfo.role;
 			StatusNight status = playerStatus.Value;
 
-			if(status.isBited){
-				if(status.isGuraded) {}
+			if(status.PlayerIdBiteMe != null){
+				if(status.PlayerIdGuradMe != null) {}
 
 				else if(playerRole.whenBited == WhenBited.death) { deadPlayersUserId.Add(playerId); }
 				else if(playerRole.whenBited == WhenBited.cannotBite) {}
 				else if(playerRole.whenBited == WhenBited.notDeath) {}
-				else if(playerRole.whenBited == WhenBited.killWolf) { /*deadPlayersUserId.Add(status.choosingUserId);*/ }
+				else if(playerRole.whenBited == WhenBited.killWolf) { deadPlayersUserId.Add(status.PlayerIdBiteMe); }
 			}
 
-			if(status.isFotuneTelled){
+			if(status.PlayerIdFotuneTellMe != null){
 				if(playerRole.whenFortuneTelled == WhenFortuneTelled.none) {}
 				else if(playerRole.whenFortuneTelled == WhenFortuneTelled.death) { deadPlayersUserId.Add(playerId); }
-				else if(playerRole.whenFortuneTelled == WhenFortuneTelled.killFortuneTeller) { /*deadPlayersUserId.Add(status.choosingUserId);*/ }
+				else if(playerRole.whenFortuneTelled == WhenFortuneTelled.killFortuneTeller) { deadPlayersUserId.Add(status.PlayerIdFotuneTellMe); }
 			}
 
-			if(status.isGuraded){
+			if(status.PlayerIdGuradMe != null){
 				if(playerRole.whenGuarded == WhenGuarded.guraded) {}
-				else if(playerRole.whenGuarded == WhenGuarded.killGuarder){ /*deadPlayersUserId.Add(status.choosingUserId);*/ }
+				else if(playerRole.whenGuarded == WhenGuarded.killGuarder){ deadPlayersUserId.Add(status.PlayerIdGuradMe); }
 			}
 		}
 
