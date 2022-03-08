@@ -15,10 +15,6 @@ public class RoleConfirmController : MonoBehaviour
 	void Start()
 	{
 		photonView = this.GetComponent<PhotonView>();
-		
-		foreach (Player player in PhotonNetwork.PlayerList) {
-			SettingPropetiesExtentions.SetPlayerIsAlive(player.UserId, true);
-		}
 	}
 
 	public void GameStartButtonClicked ()

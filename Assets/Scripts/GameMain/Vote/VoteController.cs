@@ -41,7 +41,7 @@ public class VoteController : MonoBehaviourPunCallbacks
 		votePopup.SetActive(false);
 
 		bool voteButtonInteractable;
-		if(!SettingPropetiesExtentions.GetPlayerIsAlive(PhotonNetwork.LocalPlayer.UserId)) {
+		if(!GameInfomation.GetPlayerIsAlive(PhotonNetwork.LocalPlayer.UserId)) {
 			votePlayerText.GetComponent<Text>().text = "死者は投票できません";
 			voteButtonInteractable = false;
 		} else {
@@ -50,7 +50,7 @@ public class VoteController : MonoBehaviourPunCallbacks
 		}
 
 		foreach (Player player in PhotonNetwork.PlayerList) {
-			if (!SettingPropetiesExtentions.GetPlayerIsAlive(player.UserId)) continue;
+			if (!GameInfomation.GetPlayerIsAlive(player.UserId)) continue;
 
 			GameObject newPlayerVotePanel = Instantiate(PlayerVotePanel, Vector3.zero, Quaternion.identity);
 			Text playerName = newPlayerVotePanel.transform.GetChild(0).GetComponent<Text>();
@@ -78,9 +78,8 @@ public class VoteController : MonoBehaviourPunCallbacks
 		}
 
 		if (PhotonNetwork.IsMasterClient) {
-			if (finVotePlayer.Count == SettingPropetiesExtentions.GetAlivingPlayerNum()) {
+			if (finVotePlayer.Count == GameInfomation.GetAlivingPlayerNum()) {
 				string punishmentedUserId = GetPunishmentedUserId();
-				SettingPropetiesExtentions.SetPlayerIsAlive(punishmentedUserId, false);
 
 				string deadUserId = noneDeadUserId;
 				PlayerInfo punishmentedPlayerInfo = GameInfomation.playerInfoDict[punishmentedUserId];
@@ -90,25 +89,23 @@ public class VoteController : MonoBehaviourPunCallbacks
 				else if(punishmentedPlayerRole.whenPunishmented == WhenPunishmented.destinyBondAnyone){
 					List<string> alivingPlayers = new List<string>();
 					foreach(var playerInfo in GameInfomation.playerInfoDict) {
-						if (SettingPropetiesExtentions.GetPlayerIsAlive(playerInfo.Key)) {
+						if (GameInfomation.GetPlayerIsAlive(playerInfo.Key)) {
 							alivingPlayers.Add(playerInfo.Key);
 						}
 					}
 
 					deadUserId = alivingPlayers[Random.Range(0, alivingPlayers.Count)];
-					SettingPropetiesExtentions.SetPlayerIsAlive(deadUserId, false);
 				}
 				else if(punishmentedPlayerRole.whenPunishmented == WhenPunishmented.destinyBondNotWolf){
 					List<string> alivingNotWolfPlayers = new List<string>();
 					foreach(var playerInfo in GameInfomation.playerInfoDict) {
 						string playerId = playerInfo.Key;
-						if (SettingPropetiesExtentions.GetPlayerIsAlive(playerId) && !GameInfomation.playerInfoDict[playerId].role.isWolf) {
+						if (GameInfomation.GetPlayerIsAlive(playerId) && !GameInfomation.playerInfoDict[playerId].role.isWolf) {
 							alivingNotWolfPlayers.Add(playerId);
 						}
 					}
 
 					deadUserId = alivingNotWolfPlayers[Random.Range(0, alivingNotWolfPlayers.Count)];
-					SettingPropetiesExtentions.SetPlayerIsAlive(deadUserId, false);
 				}
 
 				photonView.RPC("StartVoteResult", RpcTarget.All, punishmentedUserId, deadUserId);
@@ -118,16 +115,18 @@ public class VoteController : MonoBehaviourPunCallbacks
 
 	[PunRPC]
 	void StartVoteResult (string punishmentedUserId, string deadUserId) {
+		GameInfomation.SetVoteInfo(finVotePlayer);
 		finVotePlayer.Clear();
 
 		Text punishmentUserText = voteResultCanvas.transform.GetChild(0).GetComponent<Text>();
 		string punishmentUserNickname = GameInfomation.playerInfoDict[punishmentedUserId].nickname;
 		punishmentUserText.text = "「" + punishmentUserNickname + "」さんが\n処刑されました";
-		GameInfomation.addPunishmentedPlayer(punishmentedUserId);
+		GameInfomation.SetPunishmentedPlayerId(punishmentedUserId);
 		
 		if(deadUserId != noneDeadUserId){
 			string deadUserNickname = GameInfomation.playerInfoDict[deadUserId].nickname;
 			punishmentUserText.text += "\n「" + deadUserNickname + "」さんが\n死亡しました。";
+			GameInfomation.SetDestinyBondedPlayerId(deadUserId);
 		}
 
 		voteResultCanvas.SetActive(true);

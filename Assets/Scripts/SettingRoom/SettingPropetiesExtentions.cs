@@ -10,7 +10,6 @@ public static class SettingPropetiesExtentions
 	public static readonly string roleToken = "role";
 	public static readonly string startTimeStamp = "StartTimeStamp";
 	public static readonly string voteToken = "vote";
-	public static readonly string isAliveToken = "isAlive";
 	public static readonly string chooseToken = "choose";
 
 	public static void SetPlayerRoleNum (this Player player, string role_jp, int num)
@@ -80,30 +79,6 @@ public static class SettingPropetiesExtentions
 
 	public static string GetPlayerVote (string userId) {
 		return (PhotonNetwork.CurrentRoom.CustomProperties[GetPlayerVoteKey(userId)] is string votedUserId) ? votedUserId : "";
-	}
-
-
-
-	public static string GetPlayerIsAliveKey (string userId) {
-		return userId + "." + isAliveToken;
-	}
-	public static void SetPlayerIsAlive (string userId, bool isAlive) {
-		propsToSet[GetPlayerIsAliveKey(userId)] = isAlive;
-		PhotonNetwork.CurrentRoom.SetCustomProperties(propsToSet);
-		propsToSet.Clear();
-	}
-
-	public static bool GetPlayerIsAlive (string userId) {
-		return (PhotonNetwork.CurrentRoom.CustomProperties[GetPlayerIsAliveKey(userId)] is bool isAlive) ? isAlive : false;
-	}
-
-	public static int GetAlivingPlayerNum () {
-		int count = 0;
-		foreach (Player player in PhotonNetwork.PlayerList) {
-			bool isAlive = GetPlayerIsAlive(player.UserId);
-			if(isAlive) count++;
-		}
-		return count;
 	}
 
 

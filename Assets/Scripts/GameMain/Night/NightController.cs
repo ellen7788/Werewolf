@@ -42,7 +42,7 @@ public class NightController : MonoBehaviourPunCallbacks
 		Role myRole = GameInfomation.playerInfoDict[PhotonNetwork.LocalPlayer.UserId].role;
 
 		bool chooseButtonInteractable;
-		if(!SettingPropetiesExtentions.GetPlayerIsAlive(PhotonNetwork.LocalPlayer.UserId)) {
+		if(!GameInfomation.GetPlayerIsAlive(PhotonNetwork.LocalPlayer.UserId)) {
 			chooseText.GetComponent<Text>().text = "死者は選択できません";
 			chooseButtonInteractable = false;
 		} else {
@@ -74,7 +74,8 @@ public class NightController : MonoBehaviourPunCallbacks
 				if(player.UserId == PhotonNetwork.LocalPlayer.UserId) chooseButton.interactable = false;
 			}
 			else if(myRole.role_name == "medium"){
-				if(GameInfomation.punishmentedPlayersId.Count > 0 && player.UserId == GameInfomation.punishmentedPlayersId[GameInfomation.punishmentedPlayersId.Count-1]){
+				string punishmentedPlayersId = GameInfomation.dayActionDataList[GameInfomation.day-1].punishmentedPlayerId;
+				if(player.UserId == punishmentedPlayersId){
 					if(playerRole.mediumRes == MediumRes.citizen) playerName.text += "\n人狼ではない";
 					else if(playerRole.mediumRes == MediumRes.wolf) playerName.text += "\n<color=red>人狼</color>";
 				}
@@ -83,7 +84,7 @@ public class NightController : MonoBehaviourPunCallbacks
 				if(player.UserId == PhotonNetwork.LocalPlayer.UserId) chooseButton.interactable = false;
 			}
 
-			if (!SettingPropetiesExtentions.GetPlayerIsAlive(player.UserId)) {
+			if (!GameInfomation.GetPlayerIsAlive(player.UserId)) {
 				playerName.text += "\n<color=red>死亡</color>";
 				chooseButton.interactable = false;
 			}
@@ -121,12 +122,8 @@ public class NightController : MonoBehaviourPunCallbacks
 		}
 
 		if (PhotonNetwork.IsMasterClient) {
-			if (finChoosePlayer.Count == SettingPropetiesExtentions.GetAlivingPlayerNum()) {
+			if (finChoosePlayer.Count == GameInfomation.GetAlivingPlayerNum()) {
 				string[] deadPlayersUserId = GetDeadPlayersUserId();
-
-				for(int i = 0; i < deadPlayersUserId.Length; i++){
-					SettingPropetiesExtentions.SetPlayerIsAlive(deadPlayersUserId[i], false);
-				}
 
 				if(deadPlayersUserId.Length == 0) photonView.RPC("StartMorningWithNoneDeadPlayer", RpcTarget.All);
 				else if(deadPlayersUserId.Length == 1) photonView.RPC("StartMorningWithOneDeadPlayer", RpcTarget.All, deadPlayersUserId[0]);
@@ -137,12 +134,13 @@ public class NightController : MonoBehaviourPunCallbacks
 
 	[PunRPC]
 	void StartMorningWithNoneDeadPlayer(){
+		GameInfomation.SetChooseInfo(finChoosePlayer);
 		finChoosePlayer.Clear();
 
 		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
 		morningText.text = "朝になりました。今日の犠牲者は\nいませんでした。";
 
-		GameInfomation.day++;
+		GameInfomation.advanceDay();
 
 		MorningCanvas.SetActive(true);
 		this.gameObject.SetActive(false);
@@ -150,12 +148,14 @@ public class NightController : MonoBehaviourPunCallbacks
 
 	[PunRPC]
 	void StartMorningWithOneDeadPlayer(string deadUserId){
+		GameInfomation.SetChooseInfo(finChoosePlayer);
 		finChoosePlayer.Clear();
 
 		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
 		morningText.text = "朝になりました。今日の犠牲者は\n「" + GameInfomation.playerInfoDict[deadUserId].nickname + "」です。";
+		GameInfomation.SetDeadPlayersId(deadUserId);
 
-		GameInfomation.day++;
+		GameInfomation.advanceDay();
 
 		MorningCanvas.SetActive(true);
 		this.gameObject.SetActive(false);
@@ -163,6 +163,7 @@ public class NightController : MonoBehaviourPunCallbacks
 
 	[PunRPC]
 	void StartMorningWithMultipleDeadPlayer(string[] deadUsersId) {
+		GameInfomation.SetChooseInfo(finChoosePlayer);
 		finChoosePlayer.Clear();
 
 		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
@@ -173,8 +174,9 @@ public class NightController : MonoBehaviourPunCallbacks
 			morningText.text += "、" + GameInfomation.playerInfoDict[deadUsersId[i]].nickname;
 		}
 		morningText.text += "」です。";
+		GameInfomation.SetDeadPlayersId(deadUsersId);
 
-		GameInfomation.day++;
+		GameInfomation.advanceDay();
 
 		MorningCanvas.SetActive(true);
 		this.gameObject.SetActive(false);

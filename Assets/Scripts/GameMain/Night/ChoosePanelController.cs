@@ -18,7 +18,7 @@ public class ChoosePanelController : MonoBehaviour
 
 	public void ChooseButtonClicked()
 	{
-		if(!SettingPropetiesExtentions.GetPlayerIsAlive(PhotonNetwork.LocalPlayer.UserId)) return;
+		if(!GameInfomation.GetPlayerIsAlive(PhotonNetwork.LocalPlayer.UserId)) return;
 
 		chosenUserId = this.GetComponent<UserId>().userId;
 

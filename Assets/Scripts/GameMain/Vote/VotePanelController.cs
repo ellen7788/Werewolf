@@ -15,7 +15,7 @@ public class VotePanelController : MonoBehaviour
 
 	public void VoteButtonClicked ()
 	{
-		if(!SettingPropetiesExtentions.GetPlayerIsAlive(PhotonNetwork.LocalPlayer.UserId)) return;
+		if(!GameInfomation.GetPlayerIsAlive(PhotonNetwork.LocalPlayer.UserId)) return;
 
 
 		string votedUserId = this.GetComponent<UserId>().userId;
