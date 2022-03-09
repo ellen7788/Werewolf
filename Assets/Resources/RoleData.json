@@ -91,6 +91,21 @@
 			"defaultNum": 0
 		},
 		{
+			"role_name": "yoko",
+			"name_jp": "妖狐",
+			"isWolf": false,
+			"isFox": true,
+			"camp": 2,
+			"fotuneTellerRes": 0,
+			"mediumRes": 0,
+			"nightAction": 0,
+			"whenPunishmented": 0,
+			"whenBited": 2,
+			"whenFortuneTelled": 1,
+			"whenGuarded": 0,
+			"defaultNum": 0
+		},
+		{
 			"role_name": "psychoKiller",
 			"name_jp": "サイコキラー",
 			"isWolf": false,
