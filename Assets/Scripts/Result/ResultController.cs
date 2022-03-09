@@ -145,7 +145,7 @@ public class ResultController : MonoBehaviour
 
                     if(choosePlayerNightAction == NightAction.suspectWolf) /*message += "選択しました"*/ continue;
                     else if(choosePlayerNightAction == NightAction.biteToKill) {
-                        if(GameInfomation.day == 1) /*message += "選択しました"*/ continue;
+                        if(dayActionData.day == 1) /*message += "選択しました"*/ continue;
                         else message += "噛みました";
                     }
                     else if(choosePlayerNightAction == NightAction.fotuneTelling) message += "占いました";

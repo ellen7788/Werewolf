@@ -137,10 +137,10 @@ public class NightController : MonoBehaviourPunCallbacks
 		GameInfomation.SetChooseInfo(finChoosePlayer);
 		finChoosePlayer.Clear();
 
+		GameInfomation.advanceDay();
+
 		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
 		morningText.text = "朝になりました。今日の犠牲者は\nいませんでした。";
-
-		GameInfomation.advanceDay();
 
 		MorningCanvas.SetActive(true);
 		this.gameObject.SetActive(false);
@@ -151,11 +151,11 @@ public class NightController : MonoBehaviourPunCallbacks
 		GameInfomation.SetChooseInfo(finChoosePlayer);
 		finChoosePlayer.Clear();
 
+		GameInfomation.advanceDay();
+
 		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
 		morningText.text = "朝になりました。今日の犠牲者は\n「" + GameInfomation.playerInfoDict[deadUserId].nickname + "」です。";
 		GameInfomation.SetDeadPlayersId(deadUserId);
-
-		GameInfomation.advanceDay();
 
 		MorningCanvas.SetActive(true);
 		this.gameObject.SetActive(false);
@@ -166,8 +166,9 @@ public class NightController : MonoBehaviourPunCallbacks
 		GameInfomation.SetChooseInfo(finChoosePlayer);
 		finChoosePlayer.Clear();
 
-		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
+		GameInfomation.advanceDay();
 
+		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
 		morningText.text = "朝になりました。今日の犠牲者は\n「";
 		morningText.text += GameInfomation.playerInfoDict[deadUsersId[0]].nickname;
 		for (int i = 1; i < deadUsersId.Length; i++){
@@ -175,8 +176,6 @@ public class NightController : MonoBehaviourPunCallbacks
 		}
 		morningText.text += "」です。";
 		GameInfomation.SetDeadPlayersId(deadUsersId);
-
-		GameInfomation.advanceDay();
 
 		MorningCanvas.SetActive(true);
 		this.gameObject.SetActive(false);
@@ -237,6 +236,10 @@ public class NightController : MonoBehaviourPunCallbacks
 				else if(playerRole.whenBited == WhenBited.cannotBite) {}
 				else if(playerRole.whenBited == WhenBited.notDeath) {}
 				else if(playerRole.whenBited == WhenBited.killWolf) { deadPlayersUserId.Add(status.PlayerIdBiteMe); }
+				else if(playerRole.whenBited == WhenBited.destinyBondWolf) {
+					deadPlayersUserId.Add(playerId);
+					deadPlayersUserId.Add(status.PlayerIdBiteMe);
+				}
 			}
 
 			if(status.PlayerIdFotuneTellMe != null){

@@ -89,7 +89,8 @@ public class VoteController : MonoBehaviourPunCallbacks
 				else if(punishmentedPlayerRole.whenPunishmented == WhenPunishmented.destinyBondAnyone){
 					List<string> alivingPlayers = new List<string>();
 					foreach(var playerInfo in GameInfomation.playerInfoDict) {
-						if (GameInfomation.GetPlayerIsAlive(playerInfo.Key)) {
+						string playerId = playerInfo.Key;
+						if (GameInfomation.GetPlayerIsAlive(playerInfo.Key) && playerId != PhotonNetwork.LocalPlayer.UserId) {
 							alivingPlayers.Add(playerInfo.Key);
 						}
 					}
@@ -100,7 +101,7 @@ public class VoteController : MonoBehaviourPunCallbacks
 					List<string> alivingNotWolfPlayers = new List<string>();
 					foreach(var playerInfo in GameInfomation.playerInfoDict) {
 						string playerId = playerInfo.Key;
-						if (GameInfomation.GetPlayerIsAlive(playerId) && !GameInfomation.playerInfoDict[playerId].role.isWolf) {
+						if (GameInfomation.GetPlayerIsAlive(playerId) && !GameInfomation.playerInfoDict[playerId].role.isWolf && playerId != PhotonNetwork.LocalPlayer.UserId) {
 							alivingNotWolfPlayers.Add(playerId);
 						}
 					}
