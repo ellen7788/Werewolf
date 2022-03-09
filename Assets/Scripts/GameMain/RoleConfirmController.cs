@@ -9,6 +9,8 @@ public class RoleConfirmController : MonoBehaviour
 {
 	[SerializeField] GameObject NightCanvas;
 	[SerializeField] GameObject AllCanvas;
+	[SerializeField] GameObject roleText;
+	[SerializeField] GameObject dayText;
 	PhotonView photonView;
 
 	// Start is called before the first frame update
@@ -25,10 +27,10 @@ public class RoleConfirmController : MonoBehaviour
 	[PunRPC]
 	void StartNight ()
 	{
-		Text roleText = AllCanvas.transform.GetChild(0).GetComponent<Text>();
 		PlayerInfo localPlayerInfo = GameInfomation.playerInfoDict[PhotonNetwork.LocalPlayer.UserId];
-		roleText.text = "「" + localPlayerInfo.nickname + "」さんの役職は\n「" + localPlayerInfo.role.name_jp + "」です。";
-		
+		roleText.GetComponent<Text>().text = "「" + localPlayerInfo.nickname + "」さんの役職は\n「" + localPlayerInfo.role.name_jp + "」です。";
+		dayText.GetComponent<Text>().text = "1日目";
+
 		AllCanvas.SetActive(true);
 		NightCanvas.SetActive(true);
 		this.gameObject.SetActive(false);

@@ -27,9 +27,10 @@ public class VoteResultController : MonoBehaviour
 			string sceneName = "Result";
 			PhotonNetwork.LoadLevel(sceneName);
 		}
-
-		NightCanvas.SetActive(true);
-		this.gameObject.SetActive(false);
+		else {
+			NightCanvas.SetActive(true);
+			this.gameObject.SetActive(false);
+		}
 	}
 
 	// Update is called once per frame
