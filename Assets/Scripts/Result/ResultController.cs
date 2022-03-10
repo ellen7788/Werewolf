@@ -132,7 +132,7 @@ public class ResultController : MonoBehaviour
             if(dayActionData.choosingPlayerAndChosenPlayer.Count > 0){
                 log = "";
                 var chooseDataList = dayActionData.choosingPlayerAndChosenPlayer.ToList();
-                bool flg = false;
+                bool firstPlayerIsAdded = false;
                 for(int i = 0; i < chooseDataList.Count; i++){
                     string choosePlayerId = chooseDataList[i].Key;
                     string chosenPlayerId = chooseDataList[i].Value;
@@ -153,11 +153,12 @@ public class ResultController : MonoBehaviour
                     else if(choosePlayerNightAction == NightAction.guardOtherPeople) message += "護衛しました";
                     else /*message += "選択しました"*/ continue;
 
-                    if(flg) log += "\n" + message;
+                    if(firstPlayerIsAdded) log += "\n" + message;
                     else log += message;
 
-                    flg = true;
+                    firstPlayerIsAdded = true;
                 }
+                if(!firstPlayerIsAdded) log = "役職による行動はありませんでした";
                 SetTitleAndLog(DayLogPanel, "夜", log);
             }
             else {
