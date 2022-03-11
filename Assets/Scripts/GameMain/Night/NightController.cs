@@ -38,7 +38,6 @@ public class NightController : MonoBehaviourPunCallbacks
 		}
 		popup.SetActive(false);
 
-		// TODO 霊媒結果が表示されない(霊媒結果を表示するのは処刑された=死んだ人のため)
 		Role myRole = GameInfomation.playerInfoDict[PhotonNetwork.LocalPlayer.UserId].role;
 		DisplayAtNight myDisplayAtNight = myRole.displayAtNight;
 
@@ -161,6 +160,8 @@ public class NightController : MonoBehaviourPunCallbacks
 		}
 		morningText.text = message;
 
+		GameInfomation.SetDeadPlayersId(deadUsersId);
+
 		// 朝行動
 		foreach(var playerInfo in GameInfomation.playerInfoDict) {
 			string playerId = playerInfo.Key;
@@ -171,8 +172,6 @@ public class NightController : MonoBehaviourPunCallbacks
 				if(GameInfomation.playerInfoDict[playerId].isAlive) morningText.text += "\nおいしいパンが届けられました";
 			}
 		}
-
-		GameInfomation.SetDeadPlayersId(deadUsersId);
 
 		MorningCanvas.SetActive(true);
 		this.gameObject.SetActive(false);

@@ -15,7 +15,6 @@ public class VoteController : MonoBehaviourPunCallbacks
 	[SerializeField] GameObject votePopup;
 	Dictionary<string, string> finVotePlayer;
 	bool started = false;
-	string noneDeadUserId = "none";
 
 	// Start is called before the first frame update
 	void Start()
