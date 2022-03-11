@@ -86,7 +86,7 @@ public static class GameInfomation
 		dayActionDataList[day-1].deadPlayersId.Add(deadPlayerId);
 	}
 
-	public static void SetDeadPlayersId(string[] deadPlayersId){
+	public static void SetDeadPlayersId(List<string> deadPlayersId){
 		foreach(string id in deadPlayersId){ SetPlayerIsAlive(id, false); }
 		dayActionDataList[day-1].deadPlayersId = new List<string>(deadPlayersId.ToList<string>());
 	}

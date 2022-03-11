@@ -123,65 +123,60 @@ public class NightController : MonoBehaviourPunCallbacks
 
 		if (PhotonNetwork.IsMasterClient) {
 			if (finChoosePlayer.Count == GameInfomation.GetAlivingPlayerNum()) {
-				string[] deadPlayersUserId = GetDeadPlayersUserId();
+				// RPCの引数の配列が、要素が1個以下だと配列と認識されないのでdummyを2個入れて渡す
+				List<string> deadPlayersUserIdList = new List<string>() { "dummy", "dummy" };
+				deadPlayersUserIdList.AddRange(GetDeadPlayersUserId());
+				string[] deadPlayersUserId = deadPlayersUserIdList.ToArray();
 
-				if(deadPlayersUserId.Length == 0) photonView.RPC("StartMorningWithNoneDeadPlayer", RpcTarget.All);
-				else if(deadPlayersUserId.Length == 1) photonView.RPC("StartMorningWithOneDeadPlayer", RpcTarget.All, deadPlayersUserId[0]);
-				else photonView.RPC("StartMorningWithMultipleDeadPlayer", RpcTarget.All, deadPlayersUserId);
+				photonView.RPC("StartMorning", RpcTarget.All, deadPlayersUserId);
 			}
 		}
 	}
 
 	[PunRPC]
-	void StartMorningWithNoneDeadPlayer(){
+	void StartMorning(string[] deadUsersIdArray) {
+		// dummyを取り除く
+		List<string> deadUsersId = deadUsersIdArray.ToList();
+		deadUsersId.RemoveRange(0, 2);
+
 		GameInfomation.SetChooseInfo(finChoosePlayer);
 		finChoosePlayer.Clear();
 
 		GameInfomation.advanceDay();
 
 		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
-		morningText.text = "朝になりました。今日の犠牲者は\nいませんでした。";
 
-		MorningCanvas.SetActive(true);
-		this.gameObject.SetActive(false);
-	}
-
-	[PunRPC]
-	void StartMorningWithOneDeadPlayer(string deadUserId){
-		GameInfomation.SetChooseInfo(finChoosePlayer);
-		finChoosePlayer.Clear();
-
-		GameInfomation.advanceDay();
-
-		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
-		morningText.text = "朝になりました。今日の犠牲者は\n「" + GameInfomation.playerInfoDict[deadUserId].nickname + "」です。";
-		GameInfomation.SetDeadPlayersId(deadUserId);
-
-		MorningCanvas.SetActive(true);
-		this.gameObject.SetActive(false);
-	}
-
-	[PunRPC]
-	void StartMorningWithMultipleDeadPlayer(string[] deadUsersId) {
-		GameInfomation.SetChooseInfo(finChoosePlayer);
-		finChoosePlayer.Clear();
-
-		GameInfomation.advanceDay();
-
-		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
-		morningText.text = "朝になりました。今日の犠牲者は\n「";
-		morningText.text += GameInfomation.playerInfoDict[deadUsersId[0]].nickname;
-		for (int i = 1; i < deadUsersId.Length; i++){
-			morningText.text += "、" + GameInfomation.playerInfoDict[deadUsersId[i]].nickname;
+		string message = "";
+		if(deadUsersId.Count <= 0) { 
+			message += "朝になりました。今日の犠牲者は\nいませんでした。";
 		}
-		morningText.text += "」です。";
+		else {
+			message += "朝になりました。今日の犠牲者は\n";
+			for (int i = 0; i < deadUsersId.Count; i++){
+				message += "「" + GameInfomation.playerInfoDict[deadUsersId[i]].nickname + "」";
+			}
+			message += "です。";
+		}
+		morningText.text = message;
+
+		// 朝行動
+		foreach(var playerInfo in GameInfomation.playerInfoDict) {
+			string playerId = playerInfo.Key;
+			MorningAction morningAction = playerInfo.Value.role.morningAction;
+
+			if(morningAction == MorningAction.none){}
+			else if(morningAction == MorningAction.deliveryBread){
+				if(GameInfomation.playerInfoDict[playerId].isAlive) morningText.text += "\nおいしいパンが届けられました";
+			}
+		}
+
 		GameInfomation.SetDeadPlayersId(deadUsersId);
 
 		MorningCanvas.SetActive(true);
 		this.gameObject.SetActive(false);
 	}
 
-	string[] GetDeadPlayersUserId(){
+	List<string> GetDeadPlayersUserId(){
 		// 夜の出来事の結果を処理し、死者を求める。
 		HashSet<string> deadPlayersUserId = new HashSet<string>();
 
@@ -254,7 +249,7 @@ public class NightController : MonoBehaviourPunCallbacks
 			}
 		}
 
-		return deadPlayersUserId.ToArray();
+		return deadPlayersUserId.ToList();
 	}
 
 	// Update is called once per frame

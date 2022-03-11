@@ -17,6 +17,7 @@ public class Role
 	public FotuneTellerRes fotuneTellerRes;
 	public MediumRes mediumRes;
 	public NightAction nightAction;
+	public MorningAction morningAction;
 	public WhenPunishmented whenPunishmented;
 	public WhenBited whenBited;
 	public WhenFortuneTelled whenFortuneTelled;
@@ -46,6 +47,11 @@ public enum NightAction {
 	fotuneTelling,
 	seeMediumRes,
 	guardOtherPeople,
+}
+
+public enum MorningAction {
+	none,
+	deliveryBread,
 }
 
 public enum WhenPunishmented {
