@@ -23,6 +23,7 @@ public class Role
 	public WhenBited whenBited;
 	public WhenFortuneTelled whenFortuneTelled;
 	public WhenGuarded whenGuarded;
+	public Chase chase;
 	public int defaultNum;
 }
 
@@ -85,4 +86,9 @@ public enum WhenFortuneTelled {
 public enum WhenGuarded {
 	guraded,
 	killGuarder
+}
+
+public enum Chase {
+	none,
+	fox
 }

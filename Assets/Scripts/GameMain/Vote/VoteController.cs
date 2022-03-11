@@ -81,41 +81,21 @@ public class VoteController : MonoBehaviourPunCallbacks
 			if (finVotePlayer.Count == GameInfomation.GetAlivingPlayerNum()) {
 				string punishmentedUserId = GetPunishmentedUserId();
 
-				string deadUserId = noneDeadUserId;
-				PlayerInfo punishmentedPlayerInfo = GameInfomation.playerInfoDict[punishmentedUserId];
-				Role punishmentedPlayerRole = punishmentedPlayerInfo.role;
+				List<string> deadUsersIdList = new List<string>() { "dummy", "dummy" };
+				deadUsersIdList.AddRange(GetDeadUsersId(punishmentedUserId));
+				string[] deadUsersId = deadUsersIdList.ToArray();
 
-				if(punishmentedPlayerRole.whenPunishmented == WhenPunishmented.punishmented) {}
-				else if(punishmentedPlayerRole.whenPunishmented == WhenPunishmented.destinyBondAnyone){
-					List<string> alivingPlayers = new List<string>();
-					foreach(var playerInfo in GameInfomation.playerInfoDict) {
-						string playerId = playerInfo.Key;
-						if (GameInfomation.GetPlayerIsAlive(playerInfo.Key) && playerId != PhotonNetwork.LocalPlayer.UserId) {
-							alivingPlayers.Add(playerInfo.Key);
-						}
-					}
-
-					deadUserId = alivingPlayers[Random.Range(0, alivingPlayers.Count)];
-				}
-				else if(punishmentedPlayerRole.whenPunishmented == WhenPunishmented.destinyBondNotWolf){
-					List<string> alivingNotWolfPlayers = new List<string>();
-					foreach(var playerInfo in GameInfomation.playerInfoDict) {
-						string playerId = playerInfo.Key;
-						if (GameInfomation.GetPlayerIsAlive(playerId) && !GameInfomation.playerInfoDict[playerId].role.isWolf && playerId != PhotonNetwork.LocalPlayer.UserId) {
-							alivingNotWolfPlayers.Add(playerId);
-						}
-					}
-
-					deadUserId = alivingNotWolfPlayers[Random.Range(0, alivingNotWolfPlayers.Count)];
-				}
-
-				photonView.RPC("StartVoteResult", RpcTarget.All, punishmentedUserId, deadUserId);
+				photonView.RPC("StartVoteResult", RpcTarget.All, punishmentedUserId, deadUsersId);
 			}
 		}
 	}
 
 	[PunRPC]
-	void StartVoteResult (string punishmentedUserId, string deadUserId) {
+	void StartVoteResult (string punishmentedUserId, string[] deadUsersIdArray) {
+		// dummyを取り除く
+		List<string> deadUsersId = deadUsersIdArray.ToList();
+		deadUsersId.RemoveRange(0, 2);
+
 		GameInfomation.SetVoteInfo(finVotePlayer);
 		finVotePlayer.Clear();
 
@@ -123,11 +103,15 @@ public class VoteController : MonoBehaviourPunCallbacks
 		string punishmentUserNickname = GameInfomation.playerInfoDict[punishmentedUserId].nickname;
 		punishmentUserText.text = "「" + punishmentUserNickname + "」さんが\n処刑されました";
 		GameInfomation.SetPunishmentedPlayerId(punishmentedUserId);
-		
-		if(deadUserId != noneDeadUserId){
-			string deadUserNickname = GameInfomation.playerInfoDict[deadUserId].nickname;
-			punishmentUserText.text += "\n「" + deadUserNickname + "」さんが\n死亡しました。";
-			GameInfomation.SetDestinyBondedPlayerId(deadUserId);
+
+		if(deadUsersId.Count > 0){
+			punishmentUserText.text += "\n";
+			foreach(string deadUserId in deadUsersId){
+				string deadUserNickname = GameInfomation.playerInfoDict[deadUserId].nickname;
+				punishmentUserText.text += "「" + deadUserNickname + "」";
+			}
+			punishmentUserText.text += "さんが\n死亡しました。";
+			GameInfomation.SetDestinyBondedPlayerId(deadUsersId);
 		}
 
 		voteResultCanvas.SetActive(true);
@@ -147,6 +131,61 @@ public class VoteController : MonoBehaviourPunCallbacks
 		KeyValuePair<string, int> punishmentedUser = maxVotedUsers[Random.Range(0, maxVotedUsers.Count)];
 
 		return punishmentedUser.Key;
+	}
+
+	List<string> GetDeadUsersId(string punishmentedUserId) {
+		HashSet<string> deadUsersId = new HashSet<string>();
+
+		PlayerInfo punishmentedPlayerInfo = GameInfomation.playerInfoDict[punishmentedUserId];
+		Role punishmentedPlayerRole = punishmentedPlayerInfo.role;
+
+		if(punishmentedPlayerRole.whenPunishmented == WhenPunishmented.punishmented) {}
+		else if(punishmentedPlayerRole.whenPunishmented == WhenPunishmented.destinyBondAnyone){
+			List<string> alivingPlayers = new List<string>();
+			foreach(var playerInfo in GameInfomation.playerInfoDict) {
+				string playerId = playerInfo.Key;
+				if (GameInfomation.GetPlayerIsAlive(playerInfo.Key) && playerId != PhotonNetwork.LocalPlayer.UserId) {
+					alivingPlayers.Add(playerInfo.Key);
+				}
+			}
+
+			string deadUserId = alivingPlayers[Random.Range(0, alivingPlayers.Count)];
+			deadUsersId.Add(deadUserId);
+		}
+		else if(punishmentedPlayerRole.whenPunishmented == WhenPunishmented.destinyBondNotWolf){
+			List<string> alivingNotWolfPlayers = new List<string>();
+			foreach(var playerInfo in GameInfomation.playerInfoDict) {
+				string playerId = playerInfo.Key;
+				if (GameInfomation.GetPlayerIsAlive(playerId) && !GameInfomation.playerInfoDict[playerId].role.isWolf && playerId != PhotonNetwork.LocalPlayer.UserId) {
+					alivingNotWolfPlayers.Add(playerId);
+				}
+			}
+
+			string deadUserId = alivingNotWolfPlayers[Random.Range(0, alivingNotWolfPlayers.Count)];
+			deadUsersId.Add(deadUserId);
+		}
+
+		// 後追い
+		foreach(var playerData in GameInfomation.playerInfoDict){
+			string playerId = playerData.Key;
+			Chase playerChase = playerData.Value.role.chase;
+
+			if(playerChase == Chase.none){}
+			else if(playerChase == Chase.fox){
+				foreach(var deadPlayerId in deadUsersId){
+					if(GameInfomation.playerInfoDict[deadPlayerId].role.isFox){
+						deadUsersId.Add(playerId);
+						break;
+					}
+				}
+
+				if(GameInfomation.playerInfoDict[punishmentedUserId].role.isFox){
+					deadUsersId.Add(playerId);
+				}
+			}
+		}
+
+		return deadUsersId.ToList();
 	}
 
 	// Update is called once per frame

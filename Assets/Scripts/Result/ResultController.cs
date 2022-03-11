@@ -122,9 +122,15 @@ public class ResultController : MonoBehaviour
                 // 投票結果
                 log = "";
                 string punishmentedPlayerId = dayActionData.punishmentedPlayerId;
-                string destinyBondedPlayerId = dayActionData.destinyBondedPlayerId;
+                List<string> destinyBondedPlayersId = dayActionData.destinyBondedPlayerId;
                 if(punishmentedPlayerId != "") log += "「" + GameInfomation.playerInfoDict[punishmentedPlayerId].nickname + "」が処刑されました";
-                if(destinyBondedPlayerId != "") log += "\n「" + GameInfomation.playerInfoDict[destinyBondedPlayerId].nickname + "」が死亡しました";
+                if(destinyBondedPlayersId.Count > 0) {
+                    log += "\n";
+                    foreach(string id in destinyBondedPlayersId){
+                        log += "「" + GameInfomation.playerInfoDict[id].nickname + "」";
+                    }
+                    log += "が死亡しました";
+                }
                 SetTitleAndLog(DayLogPanel, "投票結果", log);
             }
 

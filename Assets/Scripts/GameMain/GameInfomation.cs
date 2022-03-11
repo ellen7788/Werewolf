@@ -88,7 +88,7 @@ public static class GameInfomation
 
 	public static void SetDeadPlayersId(List<string> deadPlayersId){
 		foreach(string id in deadPlayersId){ SetPlayerIsAlive(id, false); }
-		dayActionDataList[day-1].deadPlayersId = new List<string>(deadPlayersId.ToList<string>());
+		dayActionDataList[day-1].deadPlayersId = new List<string>(deadPlayersId);
 	}
 
 	public static void SetVoteInfo(Dictionary<string, string> finVotePlayer){
@@ -100,9 +100,9 @@ public static class GameInfomation
 		dayActionDataList[day-1].punishmentedPlayerId = punishmentedUserId;
 	}
 
-	public static void SetDestinyBondedPlayerId(string destinyBondedPlayerId){
-		SetPlayerIsAlive(destinyBondedPlayerId, false);
-		dayActionDataList[day-1].destinyBondedPlayerId = destinyBondedPlayerId;
+	public static void SetDestinyBondedPlayerId(List<string> destinyBondedPlayerId){
+		foreach(string id in destinyBondedPlayerId){ SetPlayerIsAlive(id, false); }
+		dayActionDataList[day-1].destinyBondedPlayerId = new List<string>(destinyBondedPlayerId);
 	}
 	#endregion
 
@@ -192,7 +192,7 @@ public class DayActionData{
 	public List<string> deadPlayersId;
 	public Dictionary<string, string> votingingPlayerAndVotedPlayer;
 	public string punishmentedPlayerId;
-	public string destinyBondedPlayerId;
+	public List<string> destinyBondedPlayerId;
 
 	public DayActionData(int day){
 		this.day = day;
@@ -200,6 +200,6 @@ public class DayActionData{
 		deadPlayersId = new List<string>();
 		votingingPlayerAndVotedPlayer = new Dictionary<string, string>();
 		punishmentedPlayerId = "";
-		destinyBondedPlayerId = "";
+		destinyBondedPlayerId = new List<string>();
 	}
 }

@@ -251,6 +251,22 @@ public class NightController : MonoBehaviourPunCallbacks
 			}
 		}
 
+		// 後追い
+		foreach(var playerData in GameInfomation.playerInfoDict){
+			string playerId = playerData.Key;
+			Chase playerChase = playerData.Value.role.chase;
+
+			if(playerChase == Chase.none){}
+			else if(playerChase == Chase.fox){
+				foreach(var deadPlayerId in deadPlayersUserId){
+					if(GameInfomation.playerInfoDict[deadPlayerId].role.isFox){
+						deadPlayersUserId.Add(playerId);
+						break;
+					}
+				}
+			}
+		}
+
 		return deadPlayersUserId.ToList();
 	}
 
