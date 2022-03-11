@@ -16,6 +16,7 @@ public class Role
 	public Camp camp;
 	public FotuneTellerRes fotuneTellerRes;
 	public MediumRes mediumRes;
+	public DisplayAtNight displayAtNight;
 	public NightAction nightAction;
 	public MorningAction morningAction;
 	public WhenPunishmented whenPunishmented;
@@ -39,6 +40,13 @@ public enum FotuneTellerRes {
 public enum MediumRes {
 	citizen,
 	wolf,
+}
+
+public enum DisplayAtNight {
+	none,
+	werewolf,
+	mediumRes,
+	yoko,
 }
 
 public enum NightAction {

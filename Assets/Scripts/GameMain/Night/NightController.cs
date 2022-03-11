@@ -40,6 +40,7 @@ public class NightController : MonoBehaviourPunCallbacks
 
 		// TODO 霊媒結果が表示されない(霊媒結果を表示するのは処刑された=死んだ人のため)
 		Role myRole = GameInfomation.playerInfoDict[PhotonNetwork.LocalPlayer.UserId].role;
+		DisplayAtNight myDisplayAtNight = myRole.displayAtNight;
 
 		bool chooseButtonInteractable;
 		if(!GameInfomation.GetPlayerIsAlive(PhotonNetwork.LocalPlayer.UserId)) {
@@ -63,26 +64,27 @@ public class NightController : MonoBehaviourPunCallbacks
 
 			Role playerRole = GameInfomation.playerInfoDict[player.UserId].role;
 
-			// TODO 役職に応じて表示変更、role_name直打ちになっているので何とかしたい
-			if(myRole.role_name == "werewolf"){
-				if(playerRole.role_name == "werewolf") {
+			// DisplayAtNight
+			if(myDisplayAtNight == DisplayAtNight.none) {}
+			else if(myDisplayAtNight == DisplayAtNight.werewolf){
+				if(playerRole.isWolf) {
 					playerName.text += "\n<color=red>人狼</color>";
 					chooseButton.interactable = false;
 				}
 			}
-			else if(myRole.role_name == "fotuneTeller"){
-				if(player.UserId == PhotonNetwork.LocalPlayer.UserId) chooseButton.interactable = false;
-			}
-			else if(myRole.role_name == "medium"){
+			else if(myDisplayAtNight == DisplayAtNight.mediumRes){
 				string punishmentedPlayersId = GameInfomation.dayActionDataList[GameInfomation.day-1].punishmentedPlayerId;
 				if(player.UserId == punishmentedPlayersId){
 					if(playerRole.mediumRes == MediumRes.citizen) playerName.text += "\n人狼ではない";
 					else if(playerRole.mediumRes == MediumRes.wolf) playerName.text += "\n<color=red>人狼</color>";
 				}
 			}
-			else if(myRole.role_name == "knight"){
-				if(player.UserId == PhotonNetwork.LocalPlayer.UserId) chooseButton.interactable = false;
+			else if(myDisplayAtNight == DisplayAtNight.yoko){
+				if(playerRole.isFox) playerName.text += "\n<color=blue>妖狐</color>";
 			}
+
+
+			if(player.UserId == PhotonNetwork.LocalPlayer.UserId) chooseButton.interactable = false;
 
 			if (!GameInfomation.GetPlayerIsAlive(player.UserId)) {
 				playerName.text += "\n<color=red>死亡</color>";
