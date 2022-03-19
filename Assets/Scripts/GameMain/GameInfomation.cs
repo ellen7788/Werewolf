@@ -65,13 +65,14 @@ public static class GameInfomation
 		return playerInfoDict[playerId].isAlive;
 	}
 
-	public static int GetAlivingPlayerNum() {
-		int count = 0;
+	public static List<string> GetAlivingPlayersId() {
+		List<string> alivePlayers = new List<string>();
 		foreach (var player in playerInfoDict) {
 			PlayerInfo playerInfo = player.Value;
-			if(playerInfo.isAlive) count++;
+			if(playerInfo.isAlive) alivePlayers.Add(playerInfo.userId);
 		}
-		return count;
+
+		return alivePlayers;
 	}
 	#endregion
 

@@ -11,6 +11,7 @@ public static class SettingPropetiesExtentions
 	public static readonly string startTimeStamp = "StartTimeStamp";
 	public static readonly string voteToken = "vote";
 	public static readonly string chooseToken = "choose";
+	public static readonly string leftNotificationToken = "left";
 
 	public static readonly string displayVoteInfoToken = "displayVoteInfo";
 
@@ -93,6 +94,17 @@ public static class SettingPropetiesExtentions
 
 	public static string GetPlayerVote (string userId) {
 		return (PhotonNetwork.CurrentRoom.CustomProperties[GetPlayerVoteKey(userId)] is string votedUserId) ? votedUserId : "";
+	}
+
+
+	public static string GetNotifyPlayerLeftKey (string userId) {
+		return userId + "." + leftNotificationToken;
+	}
+
+	public static void NotifyPlayerLeft(string leftUserId) {
+		propsToSet[GetNotifyPlayerLeftKey(leftUserId)] = leftUserId;
+		PhotonNetwork.CurrentRoom.SetCustomProperties(propsToSet);
+		propsToSet.Clear();
 	}
 
 

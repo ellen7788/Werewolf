@@ -39,6 +39,15 @@ public class GameMainController : MonoBehaviourPunCallbacks
 		}
 	}
 
+	public override void OnPlayerLeftRoom(Player otherPlayer) {
+		Debug.Log(otherPlayer.NickName + " left from the room.");
+		string leftPlayerUserId = otherPlayer.UserId;
+		GameInfomation.SetPlayerIsAlive(leftPlayerUserId, false);
+		// night や vote でOnRoomPropertiesUpdate関数内で次に進むかの判定を
+		// しているのを利用し、カスタムプロパティを送信
+		SettingPropetiesExtentions.NotifyPlayerLeft(leftPlayerUserId);
+	}
+
 	// Update is called once per frame
 	void Update()
 	{
