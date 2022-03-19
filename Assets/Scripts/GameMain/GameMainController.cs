@@ -25,12 +25,12 @@ public class GameMainController : MonoBehaviourPunCallbacks
 		}
 
 		foreach (System.Collections.DictionaryEntry de in changedProps) {
-			if(de.Key.ToString().Split('.')[1] != SettingPropetiesExtentions.roleToken) continue;
+			if(de.Key.ToString().Split('.').Length >= 2 && de.Key.ToString().Split('.')[1] == SettingPropetiesExtentions.roleToken) {
+				string userId = de.Key.ToString().Split('.')[0];
+				string role_jp = de.Value.ToString();
 
-			string userId = de.Key.ToString().Split('.')[0];
-			string role_jp = de.Value.ToString();
-
-			GameInfomation.addPlayerInfo(userId, role_jp);
+				GameInfomation.addPlayerInfo(userId, role_jp);
+			}
 		}
 	}
 

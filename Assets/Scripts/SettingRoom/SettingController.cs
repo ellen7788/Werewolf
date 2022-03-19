@@ -22,6 +22,8 @@ public class SettingController : MonoBehaviourPunCallbacks
 	// Start is called before the first frame update
 	void Start()
 	{
+		if(PhotonNetwork.IsMasterClient) PhotonNetwork.CurrentRoom.IsOpen = true;
+
 		string roleData = Resources.Load<TextAsset>("RoleData").ToString();
 		roles = JsonUtility.FromJson<Roles>(roleData);
 
@@ -33,12 +35,6 @@ public class SettingController : MonoBehaviourPunCallbacks
 			Text numText = newRoleNumSetPanel.transform.GetChild(1).transform.GetChild(1).GetComponent<Text>();
 			int roleNumFromPhoton = SettingPropetiesExtentions.GetRoomRoleNum(role.name_jp);
 			numText.text = roleNumFromPhoton < 0 ? role.defaultNum.ToString() : roleNumFromPhoton.ToString();
-			// if (roleNumFromPhoton < 0) {
-			// 	numText.text = role.defaultNum.ToString();
-			// 	SettingPropetiesExtentions.SetRoomRoleNum(role.name_jp, role.defaultNum);
-			// } else {
-			// 	numText.text = roleNumFromPhoton.ToString();
-			// }
 
 			newRoleNumSetPanel.transform.SetParent(content.transform);
 		}
@@ -114,7 +110,10 @@ public class SettingController : MonoBehaviourPunCallbacks
 	[PunRPC]
 	public void LoadGameMainScene ()
 	{
-		if (PhotonNetwork.IsMasterClient) DefinitionRole();
+		if (PhotonNetwork.IsMasterClient) {
+			DefinitionRole();
+			if(PhotonNetwork.IsMasterClient) PhotonNetwork.CurrentRoom.IsOpen = false;
+		}
 
 		string sceneName = "GameMain";
 		GameInfomation.init();
