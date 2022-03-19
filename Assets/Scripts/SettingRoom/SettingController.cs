@@ -16,6 +16,7 @@ public class SettingController : MonoBehaviourPunCallbacks
 	[SerializeField] GameObject roleNumSetPanel;
 	[SerializeField] GameObject playerList;
 	[SerializeField] GameObject warningText;
+	[SerializeField] Toggle displayVoteInfoToggle;
 	Text playerListText;
 	Roles roles;
 
@@ -44,6 +45,8 @@ public class SettingController : MonoBehaviourPunCallbacks
 		updateParticipantTotal();
 		updateRoleTotal();
 		updatePlayerList();
+
+		displayVoteInfoToggle.isOn = SettingPropetiesExtentions.GetGameSettingDisplayVoteInfo();
 	}
 
 	void updateParticipantTotal()
@@ -110,7 +113,8 @@ public class SettingController : MonoBehaviourPunCallbacks
 	[PunRPC]
 	public void LoadGameMainScene ()
 	{
-		GameInfomation.init();
+		GameSetting gameSetting = new GameSetting(displayVoteInfoToggle.isOn);
+		GameInfomation.init(gameSetting);
 		foreach (Transform roleNumSetPanel in content.transform) {
 			Text roleName = roleNumSetPanel.GetChild(0).GetComponent<Text>();
 			Text numText = roleNumSetPanel.GetChild(1).transform.GetChild(1).GetComponent<Text>();
@@ -153,6 +157,18 @@ public class SettingController : MonoBehaviourPunCallbacks
 		Player[] players = PhotonNetwork.PlayerList;
 		for (int i = 0; i < players.Length; i++) {
 			SettingPropetiesExtentions.SetPlayerRole(players[i].UserId, rolesList[i]);
+		}
+	}
+
+
+	public void ClickedDisplayVoteInfoToggle(){
+		SettingPropetiesExtentions.SetGameSettingDisplayVoteInfo(displayVoteInfoToggle.isOn);
+	}
+
+	public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps) {
+		foreach (DictionaryEntry de in changedProps) {
+			if (de.Key.ToString() != SettingPropetiesExtentions.displayVoteInfoToken) return;
+			displayVoteInfoToggle.isOn = Convert.ToBoolean(de.Value);
 		}
 	}
 

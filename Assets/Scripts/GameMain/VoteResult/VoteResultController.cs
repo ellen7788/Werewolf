@@ -10,17 +10,20 @@ public class VoteResultController : MonoBehaviour
 {
 	[SerializeField] GameObject NightCanvas;
 	[SerializeField] Text voteResultText;
+	[SerializeField] Text voteInfoText;
 	PhotonView photonView;
 
 	// Start is called before the first frame update
 	void Start()
 	{
 		photonView = GetComponent<PhotonView>();
+		voteInfoText.gameObject.SetActive(GameInfomation.gameSetting.displayVoteInfo);
 	}
 
 	void OnEnable()
 	{
 		voteResultText.text = "";
+		voteInfoText.text = "";
 
 		Dictionary<string, string> voteInfo = GameInfomation.GetVoteInfo();
 		Dictionary<string, int> voteCount = new Dictionary<string, int>();
@@ -28,6 +31,8 @@ public class VoteResultController : MonoBehaviour
 		foreach (KeyValuePair<string, string> item in voteInfo) {
 			if(voteCount.ContainsKey(item.Value)) voteCount[item.Value]++;
 			else voteCount.Add(item.Value, 1);
+
+			voteInfoText.text += "「" + GameInfomation.playerInfoDict[item.Key].nickname + "」→「" + GameInfomation.playerInfoDict[item.Value].nickname + "」\n";
 		}
 		var orderdvoteCount = voteCount.OrderByDescending((x) => x.Value);
 

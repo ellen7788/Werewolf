@@ -13,6 +13,7 @@ public static class GameInfomation
 	public static Dictionary<string, Role> namejpToRoleDict{ get; }
 
 	// ゲーム内で変化するデータ
+	public static GameSetting gameSetting{ get; set; }
 	public static Dictionary<string, PlayerInfo> playerInfoDict{ get; private set; }
 	public static List<RoleSetting> roleSettings{ get; private set; }
 	public static int day{ get; set; }
@@ -34,7 +35,8 @@ public static class GameInfomation
 		}
 	}
 
-	public static void init(){
+	public static void init(GameSetting gSetting){
+		gameSetting = gSetting;
 		playerInfoDict = new Dictionary<string, PlayerInfo>();
 		roleSettings = new List<RoleSetting>();
 		day = 1;
@@ -161,6 +163,14 @@ public static class GameInfomation
 		else if(wolfCount == 0) return Camp.citizen;
 		else if(citizenCount <= wolfCount) return Camp.werewolf;
 		else return Camp.citizen;
+	}
+}
+
+public class GameSetting {
+	public bool displayVoteInfo;
+
+	public GameSetting(bool displayVoteInfo) {
+		this.displayVoteInfo = displayVoteInfo;
 	}
 }
 

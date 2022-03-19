@@ -12,6 +12,8 @@ public static class SettingPropetiesExtentions
 	public static readonly string voteToken = "vote";
 	public static readonly string chooseToken = "choose";
 
+	public static readonly string displayVoteInfoToken = "displayVoteInfo";
+
 	public static void SetPlayerRoleNum (this Player player, string role_jp, int num)
 	{
 		propsToSet[role_jp] = num;
@@ -32,6 +34,18 @@ public static class SettingPropetiesExtentions
 
 	public static int GetRoomRoleNum (string role_jp) {
 		return (PhotonNetwork.CurrentRoom.CustomProperties[role_jp] is int num) ? num : -1;
+	}
+
+
+
+	public static void SetGameSettingDisplayVoteInfo (bool flg) {
+		propsToSet[displayVoteInfoToken] = flg;
+		PhotonNetwork.CurrentRoom.SetCustomProperties(propsToSet);
+		propsToSet.Clear();
+	}
+
+	public static bool GetGameSettingDisplayVoteInfo () {
+		return (PhotonNetwork.CurrentRoom.CustomProperties[displayVoteInfoToken] is bool flg) ? flg : true;
 	}
 
 
