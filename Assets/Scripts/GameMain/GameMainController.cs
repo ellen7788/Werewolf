@@ -7,13 +7,18 @@ using ExitGames.Client.Photon;
 public class GameMainController : MonoBehaviourPunCallbacks
 {
 	[SerializeField] GameObject RoleText;
+	[SerializeField] Text RoleListText;
 
 	string myRole;
 
 	// Start is called before the first frame update
 	void Start()
 	{
-		
+		string roleListText = "";
+		foreach(RoleSetting roleSetting in GameInfomation.roleSettings){
+			if(roleSetting.num > 0) roleListText += roleSetting.role.name_jp + " " + roleSetting.num + "\n";
+		}
+		RoleListText.text = roleListText;
 	}
 
 	public override void OnRoomPropertiesUpdate(Hashtable changedProps) {

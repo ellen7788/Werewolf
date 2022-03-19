@@ -110,13 +110,22 @@ public class SettingController : MonoBehaviourPunCallbacks
 	[PunRPC]
 	public void LoadGameMainScene ()
 	{
+		GameInfomation.init();
+		foreach (Transform roleNumSetPanel in content.transform) {
+			Text roleName = roleNumSetPanel.GetChild(0).GetComponent<Text>();
+			Text numText = roleNumSetPanel.GetChild(1).transform.GetChild(1).GetComponent<Text>();
+			string roleNameJp = roleName.text;
+			int roleNum = int.Parse(numText.text);
+
+			GameInfomation.SetRoleSetting(roleNameJp, roleNum);
+		}
+
 		if (PhotonNetwork.IsMasterClient) {
 			DefinitionRole();
-			if(PhotonNetwork.IsMasterClient) PhotonNetwork.CurrentRoom.IsOpen = false;
+			PhotonNetwork.CurrentRoom.IsOpen = false;
 		}
 
 		string sceneName = "GameMain";
-		GameInfomation.init();
         PhotonNetwork.LoadLevel(sceneName);
 	}
 

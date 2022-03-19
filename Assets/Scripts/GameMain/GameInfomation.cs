@@ -14,6 +14,7 @@ public static class GameInfomation
 
 	// ゲーム内で変化するデータ
 	public static Dictionary<string, PlayerInfo> playerInfoDict{ get; private set; }
+	public static List<RoleSetting> roleSettings{ get; private set; }
 	public static int day{ get; set; }
 	public static State state{ get; set;}
 	public static List<DayActionData> dayActionDataList;
@@ -35,6 +36,7 @@ public static class GameInfomation
 
 	public static void init(){
 		playerInfoDict = new Dictionary<string, PlayerInfo>();
+		roleSettings = new List<RoleSetting>();
 		day = 1;
 		state = State.night;
 		dayActionDataList = new List<DayActionData>();
@@ -71,12 +73,18 @@ public static class GameInfomation
 	}
 	#endregion
 
+	public static void SetRoleSetting(string roleNameJp, int num){
+		Role role = namejpToRoleDict[roleNameJp];
+		roleSettings.Add(new RoleSetting(role, num));
+	}
+
 	public static void advanceDay(){
 		day++;
 		dayActionDataList.Add(new DayActionData(day));
 	}
 
 	#region dayActionDataに関する更新
+
 	public static void SetChooseInfo(Dictionary<string, string> finChoosePlayer){
 		dayActionDataList[day-1].choosingPlayerAndChosenPlayer = new Dictionary<string, string>(finChoosePlayer);
 	}
@@ -183,6 +191,16 @@ public class StatusNight {
 		PlayerIdBiteMe = null;
 		PlayerIdFotuneTellMe = null;
 		PlayerIdGuradMe = null;
+	}
+}
+
+public class RoleSetting{
+	public Role role;
+	public int num;
+
+	public RoleSetting(Role role, int num){
+		this.role = role;
+		this.num = num;
 	}
 }
 
