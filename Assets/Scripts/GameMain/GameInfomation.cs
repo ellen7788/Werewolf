@@ -103,6 +103,10 @@ public static class GameInfomation
 		dayActionDataList[day-1].votingingPlayerAndVotedPlayer = new Dictionary<string, string>(finVotePlayer);
 	}
 
+	public static Dictionary<string, string> GetVoteInfo(){
+		return dayActionDataList[day-1].votingingPlayerAndVotedPlayer;
+	}
+
 	public static void SetPunishmentedPlayerId(string punishmentedUserId){
 		SetPlayerIsAlive(punishmentedUserId, false);
 		dayActionDataList[day-1].punishmentedPlayerId = punishmentedUserId;

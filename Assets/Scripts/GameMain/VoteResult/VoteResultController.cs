@@ -1,18 +1,42 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Linq;
 
 public class VoteResultController : MonoBehaviour
 {
 	[SerializeField] GameObject NightCanvas;
+	[SerializeField] Text voteResultText;
 	PhotonView photonView;
 
 	// Start is called before the first frame update
 	void Start()
 	{
 		photonView = GetComponent<PhotonView>();
+	}
+
+	void OnEnable()
+	{
+		voteResultText.text = "";
+
+		Dictionary<string, string> voteInfo = GameInfomation.GetVoteInfo();
+		Dictionary<string, int> voteCount = new Dictionary<string, int>();
+
+		foreach (KeyValuePair<string, string> item in voteInfo) {
+			if(voteCount.ContainsKey(item.Value)) voteCount[item.Value]++;
+			else voteCount.Add(item.Value, 1);
+		}
+		var orderdvoteCount = voteCount.OrderByDescending((x) => x.Value);
+
+		foreach(var votedIdAndNum in orderdvoteCount){
+			string id = votedIdAndNum.Key;
+			int num = votedIdAndNum.Value;
+
+			voteResultText.text += "「" + GameInfomation.playerInfoDict[id].nickname + "」→" + num + "票\n";
+		}
 	}
 
 	public void NextButtonClicked()
