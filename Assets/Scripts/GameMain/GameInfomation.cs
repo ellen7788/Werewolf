@@ -91,6 +91,10 @@ public static class GameInfomation
 		dayActionDataList[day-1].deadPlayersId = new List<string>(deadPlayersId);
 	}
 
+	public static List<string> GetDeadPlayersId(){
+		return dayActionDataList[day-1].deadPlayersId;
+	}
+
 	public static void SetVoteInfo(Dictionary<string, string> finVotePlayer){
 		dayActionDataList[day-1].votingingPlayerAndVotedPlayer = new Dictionary<string, string>(finVotePlayer);
 	}
@@ -100,9 +104,17 @@ public static class GameInfomation
 		dayActionDataList[day-1].punishmentedPlayerId = punishmentedUserId;
 	}
 
+	public static string GetPunishmentedPlayerId(){
+		return dayActionDataList[day-1].punishmentedPlayerId;
+	}
+
 	public static void SetDestinyBondedPlayerId(List<string> destinyBondedPlayerId){
 		foreach(string id in destinyBondedPlayerId){ SetPlayerIsAlive(id, false); }
 		dayActionDataList[day-1].destinyBondedPlayerId = new List<string>(destinyBondedPlayerId);
+	}
+
+	public static List<string> GetDestinyBondedPlayerId(){
+		return dayActionDataList[day-1].destinyBondedPlayerId;
 	}
 	#endregion
 

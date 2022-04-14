@@ -97,21 +97,10 @@ public class VoteController : MonoBehaviourPunCallbacks
 
 		GameInfomation.SetVoteInfo(finVotePlayer);
 		finVotePlayer.Clear();
-
-		Text punishmentUserText = voteResultCanvas.transform.GetChild(0).GetComponent<Text>();
-		string punishmentUserNickname = GameInfomation.playerInfoDict[punishmentedUserId].nickname;
-		punishmentUserText.text = "「" + punishmentUserNickname + "」さんが\n処刑されました";
+		
 		GameInfomation.SetPunishmentedPlayerId(punishmentedUserId);
 
-		if(deadUsersId.Count > 0){
-			punishmentUserText.text += "\n";
-			foreach(string deadUserId in deadUsersId){
-				string deadUserNickname = GameInfomation.playerInfoDict[deadUserId].nickname;
-				punishmentUserText.text += "「" + deadUserNickname + "」";
-			}
-			punishmentUserText.text += "さんが\n死亡しました。";
-			GameInfomation.SetDestinyBondedPlayerId(deadUsersId);
-		}
+		GameInfomation.SetDestinyBondedPlayerId(deadUsersId);
 
 		voteResultCanvas.SetActive(true);
 		this.gameObject.SetActive(false);

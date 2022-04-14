@@ -145,33 +145,7 @@ public class NightController : MonoBehaviourPunCallbacks
 
 		GameInfomation.advanceDay();
 
-		Text morningText = MorningCanvas.transform.GetChild(0).GetComponent<Text>();
-
-		string message = "";
-		if(deadUsersId.Count <= 0) { 
-			message += "朝になりました。今日の犠牲者は\nいませんでした。";
-		}
-		else {
-			message += "朝になりました。今日の犠牲者は\n";
-			for (int i = 0; i < deadUsersId.Count; i++){
-				message += "「" + GameInfomation.playerInfoDict[deadUsersId[i]].nickname + "」";
-			}
-			message += "です。";
-		}
-		morningText.text = message;
-
 		GameInfomation.SetDeadPlayersId(deadUsersId);
-
-		// 朝行動
-		foreach(var playerInfo in GameInfomation.playerInfoDict) {
-			string playerId = playerInfo.Key;
-			MorningAction morningAction = playerInfo.Value.role.morningAction;
-
-			if(morningAction == MorningAction.none){}
-			else if(morningAction == MorningAction.deliveryBread){
-				if(GameInfomation.playerInfoDict[playerId].isAlive) morningText.text += "\nおいしいパンが届けられました";
-			}
-		}
 
 		MorningCanvas.SetActive(true);
 		this.gameObject.SetActive(false);
