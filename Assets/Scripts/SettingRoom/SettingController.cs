@@ -16,12 +16,15 @@ public class SettingController : MonoBehaviourPunCallbacks
 	[SerializeField] GameObject roleNumSetPanel;
 	[SerializeField] GameObject playerList;
 	[SerializeField] GameObject warningText;
+	[SerializeField] Toggle displayVoteInfoToggle;
 	Text playerListText;
 	Roles roles;
 
 	// Start is called before the first frame update
 	void Start()
 	{
+		if(PhotonNetwork.IsMasterClient) PhotonNetwork.CurrentRoom.IsOpen = true;
+
 		string roleData = Resources.Load<TextAsset>("RoleData").ToString();
 		roles = JsonUtility.FromJson<Roles>(roleData);
 
@@ -33,12 +36,6 @@ public class SettingController : MonoBehaviourPunCallbacks
 			Text numText = newRoleNumSetPanel.transform.GetChild(1).transform.GetChild(1).GetComponent<Text>();
 			int roleNumFromPhoton = SettingPropetiesExtentions.GetRoomRoleNum(role.name_jp);
 			numText.text = roleNumFromPhoton < 0 ? role.defaultNum.ToString() : roleNumFromPhoton.ToString();
-			// if (roleNumFromPhoton < 0) {
-			// 	numText.text = role.defaultNum.ToString();
-			// 	SettingPropetiesExtentions.SetRoomRoleNum(role.name_jp, role.defaultNum);
-			// } else {
-			// 	numText.text = roleNumFromPhoton.ToString();
-			// }
 
 			newRoleNumSetPanel.transform.SetParent(content.transform);
 		}
@@ -48,6 +45,8 @@ public class SettingController : MonoBehaviourPunCallbacks
 		updateParticipantTotal();
 		updateRoleTotal();
 		updatePlayerList();
+
+		displayVoteInfoToggle.isOn = SettingPropetiesExtentions.GetGameSettingDisplayVoteInfo();
 	}
 
 	void updateParticipantTotal()
@@ -114,10 +113,23 @@ public class SettingController : MonoBehaviourPunCallbacks
 	[PunRPC]
 	public void LoadGameMainScene ()
 	{
-		if (PhotonNetwork.IsMasterClient) DefinitionRole();
+		GameSetting gameSetting = new GameSetting(displayVoteInfoToggle.isOn);
+		GameInfomation.init(gameSetting);
+		foreach (Transform roleNumSetPanel in content.transform) {
+			Text roleName = roleNumSetPanel.GetChild(0).GetComponent<Text>();
+			Text numText = roleNumSetPanel.GetChild(1).transform.GetChild(1).GetComponent<Text>();
+			string roleNameJp = roleName.text;
+			int roleNum = int.Parse(numText.text);
+
+			GameInfomation.SetRoleSetting(roleNameJp, roleNum);
+		}
+
+		if (PhotonNetwork.IsMasterClient) {
+			DefinitionRole();
+			PhotonNetwork.CurrentRoom.IsOpen = false;
+		}
 
 		string sceneName = "GameMain";
-		GameInfomation.init();
         PhotonNetwork.LoadLevel(sceneName);
 	}
 
@@ -145,6 +157,18 @@ public class SettingController : MonoBehaviourPunCallbacks
 		Player[] players = PhotonNetwork.PlayerList;
 		for (int i = 0; i < players.Length; i++) {
 			SettingPropetiesExtentions.SetPlayerRole(players[i].UserId, rolesList[i]);
+		}
+	}
+
+
+	public void ClickedDisplayVoteInfoToggle(){
+		SettingPropetiesExtentions.SetGameSettingDisplayVoteInfo(displayVoteInfoToggle.isOn);
+	}
+
+	public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps) {
+		foreach (DictionaryEntry de in changedProps) {
+			if (de.Key.ToString() != SettingPropetiesExtentions.displayVoteInfoToken) return;
+			displayVoteInfoToggle.isOn = Convert.ToBoolean(de.Value);
 		}
 	}
 

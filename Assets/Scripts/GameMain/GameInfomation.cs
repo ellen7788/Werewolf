@@ -13,7 +13,9 @@ public static class GameInfomation
 	public static Dictionary<string, Role> namejpToRoleDict{ get; }
 
 	// ゲーム内で変化するデータ
+	public static GameSetting gameSetting{ get; set; }
 	public static Dictionary<string, PlayerInfo> playerInfoDict{ get; private set; }
+	public static List<RoleSetting> roleSettings{ get; private set; }
 	public static int day{ get; set; }
 	public static State state{ get; set;}
 	public static List<DayActionData> dayActionDataList;
@@ -33,8 +35,10 @@ public static class GameInfomation
 		}
 	}
 
-	public static void init(){
+	public static void init(GameSetting gSetting){
+		gameSetting = gSetting;
 		playerInfoDict = new Dictionary<string, PlayerInfo>();
+		roleSettings = new List<RoleSetting>();
 		day = 1;
 		state = State.night;
 		dayActionDataList = new List<DayActionData>();
@@ -61,15 +65,21 @@ public static class GameInfomation
 		return playerInfoDict[playerId].isAlive;
 	}
 
-	public static int GetAlivingPlayerNum() {
-		int count = 0;
+	public static List<string> GetAlivingPlayersId() {
+		List<string> alivePlayers = new List<string>();
 		foreach (var player in playerInfoDict) {
 			PlayerInfo playerInfo = player.Value;
-			if(playerInfo.isAlive) count++;
+			if(playerInfo.isAlive) alivePlayers.Add(playerInfo.userId);
 		}
-		return count;
+
+		return alivePlayers;
 	}
 	#endregion
+
+	public static void SetRoleSetting(string roleNameJp, int num){
+		Role role = namejpToRoleDict[roleNameJp];
+		roleSettings.Add(new RoleSetting(role, num));
+	}
 
 	public static void advanceDay(){
 		day++;
@@ -77,6 +87,7 @@ public static class GameInfomation
 	}
 
 	#region dayActionDataに関する更新
+
 	public static void SetChooseInfo(Dictionary<string, string> finChoosePlayer){
 		dayActionDataList[day-1].choosingPlayerAndChosenPlayer = new Dictionary<string, string>(finChoosePlayer);
 	}
@@ -97,6 +108,10 @@ public static class GameInfomation
 
 	public static void SetVoteInfo(Dictionary<string, string> finVotePlayer){
 		dayActionDataList[day-1].votingingPlayerAndVotedPlayer = new Dictionary<string, string>(finVotePlayer);
+	}
+
+	public static Dictionary<string, string> GetVoteInfo(){
+		return dayActionDataList[day-1].votingingPlayerAndVotedPlayer;
 	}
 
 	public static void SetPunishmentedPlayerId(string punishmentedUserId){
@@ -164,6 +179,14 @@ public static class GameInfomation
 	}
 }
 
+public class GameSetting {
+	public bool displayVoteInfo;
+
+	public GameSetting(bool displayVoteInfo) {
+		this.displayVoteInfo = displayVoteInfo;
+	}
+}
+
 public class PlayerInfo {
 	public string userId;
 	public string nickname;
@@ -195,6 +218,16 @@ public class StatusNight {
 		PlayerIdBiteMe = null;
 		PlayerIdFotuneTellMe = null;
 		PlayerIdGuradMe = null;
+	}
+}
+
+public class RoleSetting{
+	public Role role;
+	public int num;
+
+	public RoleSetting(Role role, int num){
+		this.role = role;
+		this.num = num;
 	}
 }
 

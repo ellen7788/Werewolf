@@ -9,6 +9,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 {
 	[SerializeField] InputField playerNameInputField;
 	[SerializeField] Button startButton;
+	[SerializeField] Text ErrorMessage;
 
 	private const string RoomName = "room";
 
@@ -62,6 +63,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 		// string sceneName = "UnityChanRoom";
 		string sceneName = "SettingRoom";
 		PhotonNetwork.LoadLevel(sceneName);
+	}
+
+	public override void OnJoinRoomFailed(short returnCode, string message)
+	{
+		if(returnCode == 32764) ErrorMessage.text = "<color=red>ゲーム中です、終了までしばらくお待ちください。</color>";
+		else ErrorMessage.text = "入室に失敗しました";
+
+		PhotonNetwork.Disconnect();
+
+		startButton.interactable = true;
 	}
 
 	// Update is called once per frame

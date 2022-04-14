@@ -113,7 +113,7 @@ public class NightController : MonoBehaviourPunCallbacks
 
 	public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps) {
 		foreach (DictionaryEntry de in changedProps) {
-			if (de.Key.ToString().Split('.')[1] != SettingPropetiesExtentions.chooseToken) return;
+			if (de.Key.ToString().Split('.')[1] != SettingPropetiesExtentions.chooseToken) continue;
 
 			string choosingUserId = de.Key.ToString().Split('.')[0];
 			string chosenUserId = de.Value.ToString();
@@ -123,7 +123,7 @@ public class NightController : MonoBehaviourPunCallbacks
 		}
 
 		if (PhotonNetwork.IsMasterClient) {
-			if (finChoosePlayer.Count == GameInfomation.GetAlivingPlayerNum()) {
+			if (AllAlivePlayerVoted()) {
 				// RPCの引数の配列が、要素が1個以下だと配列と認識されないのでdummyを2個入れて渡す
 				List<string> deadPlayersUserIdList = new List<string>() { "dummy", "dummy" };
 				deadPlayersUserIdList.AddRange(GetDeadPlayersUserId());
@@ -132,6 +132,14 @@ public class NightController : MonoBehaviourPunCallbacks
 				photonView.RPC("StartMorning", RpcTarget.All, deadPlayersUserId);
 			}
 		}
+	}
+
+	bool AllAlivePlayerVoted(){
+		foreach(string playerId in GameInfomation.GetAlivingPlayersId()){
+			if(!finChoosePlayer.ContainsKey(playerId)) return false;
+		}
+
+		return true;
 	}
 
 	[PunRPC]

@@ -7,13 +7,18 @@ using ExitGames.Client.Photon;
 public class GameMainController : MonoBehaviourPunCallbacks
 {
 	[SerializeField] GameObject RoleText;
+	[SerializeField] Text RoleListText;
 
 	string myRole;
 
 	// Start is called before the first frame update
 	void Start()
 	{
-		
+		string roleListText = "";
+		foreach(RoleSetting roleSetting in GameInfomation.roleSettings){
+			if(roleSetting.num > 0) roleListText += roleSetting.role.name_jp + " " + roleSetting.num + "\n";
+		}
+		RoleListText.text = roleListText;
 	}
 
 	public override void OnRoomPropertiesUpdate(Hashtable changedProps) {
@@ -25,13 +30,22 @@ public class GameMainController : MonoBehaviourPunCallbacks
 		}
 
 		foreach (System.Collections.DictionaryEntry de in changedProps) {
-			if(de.Key.ToString().Split('.')[1] != SettingPropetiesExtentions.roleToken) continue;
+			if(de.Key.ToString().Split('.').Length >= 2 && de.Key.ToString().Split('.')[1] == SettingPropetiesExtentions.roleToken) {
+				string userId = de.Key.ToString().Split('.')[0];
+				string role_jp = de.Value.ToString();
 
-			string userId = de.Key.ToString().Split('.')[0];
-			string role_jp = de.Value.ToString();
-
-			GameInfomation.addPlayerInfo(userId, role_jp);
+				GameInfomation.addPlayerInfo(userId, role_jp);
+			}
 		}
+	}
+
+	public override void OnPlayerLeftRoom(Player otherPlayer) {
+		Debug.Log(otherPlayer.NickName + " left from the room.");
+		string leftPlayerUserId = otherPlayer.UserId;
+		GameInfomation.SetPlayerIsAlive(leftPlayerUserId, false);
+		// night や vote でOnRoomPropertiesUpdate関数内で次に進むかの判定を
+		// しているのを利用し、カスタムプロパティを送信
+		SettingPropetiesExtentions.NotifyPlayerLeft(leftPlayerUserId);
 	}
 
 	// Update is called once per frame

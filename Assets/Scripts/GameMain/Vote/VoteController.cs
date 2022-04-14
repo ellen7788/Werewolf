@@ -67,7 +67,7 @@ public class VoteController : MonoBehaviourPunCallbacks
 
 	public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps) {
 		foreach (DictionaryEntry de in changedProps) {
-			if (de.Key.ToString().Split('.')[1] != SettingPropetiesExtentions.voteToken) return;
+			if (de.Key.ToString().Split('.')[1] != SettingPropetiesExtentions.voteToken) continue;
 
 			string key = de.Key.ToString().Split('.')[0];
 			string value = de.Value.ToString();
@@ -77,7 +77,7 @@ public class VoteController : MonoBehaviourPunCallbacks
 		}
 
 		if (PhotonNetwork.IsMasterClient) {
-			if (finVotePlayer.Count == GameInfomation.GetAlivingPlayerNum()) {
+			if (AllAlivePlayerVoted()) {
 				string punishmentedUserId = GetPunishmentedUserId();
 
 				List<string> deadUsersIdList = new List<string>() { "dummy", "dummy" };
@@ -87,6 +87,14 @@ public class VoteController : MonoBehaviourPunCallbacks
 				photonView.RPC("StartVoteResult", RpcTarget.All, punishmentedUserId, deadUsersId);
 			}
 		}
+	}
+
+	bool AllAlivePlayerVoted(){
+		foreach(string playerId in GameInfomation.GetAlivingPlayersId()){
+			if(!finVotePlayer.ContainsKey(playerId)) return false;
+		}
+
+		return true;
 	}
 
 	[PunRPC]
